@@ -19,78 +19,63 @@ def connect_wifi():
 
 def checkwifi():
     connect_wifi()
+    timeout = 10  # detik
+    start_time = time.time()
     while not sta_if.isconnected():
+        if time.time() - start_time > timeout:
+            print("[ERROR] Gagal terhubung ke WiFi dalam waktu yang ditentukan.")
+            return
         time.sleep(1)
         print("Menunggu koneksi WiFi...")
     print("Terhubung ke WiFi:", sta_if.ifconfig())
 
 # API endpoints
-API_BASE_URL = "http://192.168.43.14:5000" 
-DHT11_ENDPOINT = f"{API_BASE_URL}/send_dht11"
-LDR_ENDPOINT = f"{API_BASE_URL}/send_ldr"
+API_BASE_URL = "http://192.168.229.59:5000"  # Ganti dengan alamat IP server Flask Anda
+DHT11_ENDPOINT = f"{API_BASE_URL}/kirim_data"  # Endpoint untuk mengirim data DHT11 dan LDR
 
 # Inisialisasi pin untuk DHT11
 DHT_PIN = Pin(21)
 dht_sensor = dht.DHT11(DHT_PIN)
 
 # Inisialisasi pin untuk LDR
-LDR_PIN = Pin(34)  
-ldr_sensor = m.ADC(Pin(LDR_PIN))  
+LDR_PIN = 34  # 
+ldr_sensor = m.ADC(Pin(LDR_PIN))  # Inisialisasi ADC
 
-def send_ldr_data(ldr_value):
+def send_sensor_data(temperature, humidity, ldr_value):
     payload = {
-        "light_value": ldr_value
+        'temperature': temperature,
+        'kelembapan': humidity,
+        'cahaya': ldr_value 
     }
-    
-    print("Payload LDR yang akan dikirim:", payload)  
-    
-    try:
-        req = urequests.post(LDR_ENDPOINT, json=payload)
-        print("LDR Status Code:", req.status_code)
-        if req.status_code == 200:
-            print("LDR Response:", req.json())
-        else:
-            print("[ERROR] Gagal mengirim data LDR:", req.text)
-    except Exception as e:
-        print("[ERROR] Gagal mengirim data LDR:", e)
-
-def send_dht_data(temperature, humidity):
-    payload = {
-        "temperature": temperature,
-        "humidity": humidity
-    }
-    
-    print("Payload DHT yang akan dikirim:", payload) 
     
     try:
         req = urequests.post(DHT11_ENDPOINT, json=payload)
-        print("DHT Status Code:", req.status_code)
-        if req.status_code == 200:
-            print("DHT Response:", req.json())
-        else:
-            print("[ERROR] Gagal mengirim data DHT:", req.text)
+        print("Status Code:", req.status_code)
+        print("Response:", req.json())
     except Exception as e:
-        print("[ERROR] Gagal mengirim data DHT:", e)
-        
+        print("[ERROR] Gagal mengirim data:", e)
+
 def main():
     checkwifi()  # Memeriksa koneksi WiFi
     while True:
         try:
-            # Membaca nilai dari LDR
-            ldr_value = ldr_sensor.read()  
-            print(f"Light Value: {ldr_value}")  # Menampilkan nilai LDR
-            send_ldr_data(ldr_value)  # Mengirim data LDR ke server Flask
-            
             # Membaca data dari DHT11
             dht_sensor.measure()
             temperature = dht_sensor.temperature()
             humidity = dht_sensor.humidity()
-            print(f"Temperature: {temperature} C, Humidity: {humidity} %")  # Menampilkan data DHT
-            send_dht_data(temperature, humidity)  # Mengirim data DHT ke server Flask
+            print(f"Suhu: {temperature} C, Kelembapan: {humidity} %")  # Menampilkan data DHT
+            
+            # Membaca nilai dari LDR
+            ldr_value = ldr_sensor.read()
+            ldr_value_scaled = (ldr_value / 4095) * 100  
+            print(f"Cahaya: {ldr_value_scaled:.2f}%")  # Menampilkan nilai LDR yang sudah diskalakan
+            
+            # Mengirim data ke server Flask
+            send_sensor_data(temperature, humidity, ldr_value_scaled)  # Mengirim data DHT dan LDR
             
         except OSError as e:
             print("[ERROR] Gagal membaca sensor.")
         time.sleep(5)  # Kirim data setiap 5 detik
 
-if __name__ == '__main__':
+if _name_ == '_main_':
     main()  # Menjalankan fungsi utama
