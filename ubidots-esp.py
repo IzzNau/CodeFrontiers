@@ -42,7 +42,7 @@ def send_ldr_data(ldr_value):
         "light_value": ldr_value
     }
     
-    print("Payload LDR yang akan dikirim:", payload)  # Debugging: Tampilkan payload
+    print("Payload LDR yang akan dikirim:", payload)  
     
     try:
         req = urequests.post(LDR_ENDPOINT, json=payload)
@@ -60,7 +60,7 @@ def send_dht_data(temperature, humidity):
         "humidity": humidity
     }
     
-    print("Payload DHT yang akan dikirim:", payload)  # Debugging: Tampilkan payload
+    print("Payload DHT yang akan dikirim:", payload) 
     
     try:
         req = urequests.post(DHT11_ENDPOINT, json=payload)
