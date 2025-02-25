@@ -31,7 +31,8 @@ def checkwifi():
 
 # API endpoints
 API_BASE_URL = "http://192.168.229.59:5000"  # Ganti dengan alamat IP server Flask Anda
-DHT11_ENDPOINT = f"{API_BASE_URL}/kirim_data"  # Endpoint untuk mengirim data DHT11 dan LDR
+DHT11_ENDPOINT = f"{API_BASE_URL}/kirim_data_dht"  # Endpoint untuk mengirim data DHT11 dan LDR
+LDR_ENDPOINT = f"{API_BASE_URL}/kirim_data_ldr"
 
 # Inisialisasi pin untuk DHT11
 DHT_PIN = Pin(21)
