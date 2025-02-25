@@ -21,7 +21,7 @@ def index():
     return "Hello, World!"
 
 # DHT11
-@app.route('/send_dht11', methods=['POST'])
+@app.route('/kirim_data_dht', methods=['POST'])
 def sensor1():
     data = request.get_json()
     if not data or 'temperature' not in data or 'humidity' not in data:
@@ -43,7 +43,7 @@ def sensor1():
     return jsonify({'message': 'DHT11 data inserted successfully!', 'id': str(result.inserted_id)}), 201
 
 # LDR
-@app.route('/send_ldr', methods=['POST'])
+@app.route('/kirim_data_ldr', methods=['POST'])
 def send_ldr():
     data = request.get_json()
     if not data or 'light_value' not in data:
